@@ -9,6 +9,9 @@ public class World : MonoBehaviour
     public int y; // Width of hexmap
     public GameObject hexagonalPrismTilePrefab;
 
+    public float hexHorizontalSpacing = 0.75f; // Horizontal spacing between hexes
+    public float hexVerticalSpacing = 1.0f; // Vertical spacing between hexes
+    
     private GameObject[,] hexTiles; // Array to store hexagonal prism tiles
     private string hexTag = "HexTile";
 
@@ -31,11 +34,12 @@ public class World : MonoBehaviour
             for (int j = 0; j < y; j++)
             {
                 // Instantiate hexagonal prism tile and set its position
-                GameObject hexTile = Instantiate(hexagonalPrismTilePrefab, new Vector3(i, 0, j), Quaternion.Euler(90, 0, 0));
+                GameObject hexTile = Instantiate(hexagonalPrismTilePrefab, CalculateHexPosition(i, j), Quaternion.Euler(90, 0, 0));
                 hexTile.transform.SetParent(transform); // Set hexTile as child of WorldMap
                 hexTile.name = "Tile_" + i + "_" + j; // Set name of hexTile
                 hexTile.tag = hexTag;
                 hexTiles[i, j] = hexTile; // Store hexTile in hexTiles array
+
 
                 // Attach Tile script to hexTile
                 Tile tileScript = hexTile.AddComponent<Tile>();
@@ -43,6 +47,24 @@ public class World : MonoBehaviour
                 tileScript.y = j; // Set y index of tile
             }
         }
+    }
+
+    // Function to correctly tile all hexes in world view
+    public Vector3 CalculateHexPosition(int i, int j) {
+      
+
+      float xPos = i * hexHorizontalSpacing;
+      float yPos = 0.0f;
+      float zPos = j * hexVerticalSpacing;
+
+
+      if (i % 2 == 0) 
+      {
+          zPos += hexVerticalSpacing/2;
+      }
+
+
+      return new Vector3(xPos, yPos, zPos);
     }
 
     // Function to destroy all children hex tiles when called

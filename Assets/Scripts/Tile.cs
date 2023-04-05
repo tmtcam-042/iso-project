@@ -6,7 +6,14 @@ public class Tile : MonoBehaviour
 {
   public int x;
   public int y;
-  
+
+  public Material m_material;
+
+  public void Awake()
+  {
+    m_material = GetComponent<Renderer>().material;
+  }
+
   /*
   Calculate world position of hex based on x and y coord. 0, 0 is at origin
   Returns vector3 of object position
