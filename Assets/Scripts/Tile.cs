@@ -7,21 +7,18 @@ public class Tile : MonoBehaviour
   public int x;
   public int y;
 
-  public Material m_material;
+  private Renderer renderer;
 
   public void Awake()
   {
-    m_material = GetComponent<Renderer>().material;
+    renderer = GetComponentInChildren<Renderer>();
   }
 
-  /*
-  Calculate world position of hex based on x and y coord. 0, 0 is at origin
-  Returns vector3 of object position
-  */
-  private Vector3 CalculatePosition() {
-    Vector3 position = new Vector3(x, y, 0);
-    return position;
+  public void SetTileColor(Color setColor) 
+  {
+    renderer.material.color = setColor;
   }
+
 
 
   public override string ToString() {
