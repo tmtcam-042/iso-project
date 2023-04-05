@@ -11,7 +11,7 @@ public class World : MonoBehaviour
 
     public float hexHorizontalSpacing = 0.75f; // Horizontal spacing between hexes
     public float hexVerticalSpacing = 1.0f; // Vertical spacing between hexes
-    
+
     private GameObject[,] hexTiles; // Array to store hexagonal prism tiles
     private string hexTag = "HexTile";
 
@@ -53,12 +53,12 @@ public class World : MonoBehaviour
     public Vector3 CalculateHexPosition(int i, int j) {
       
 
-      float xPos = i * hexHorizontalSpacing;
+      float xPos = j * hexHorizontalSpacing;
       float yPos = 0.0f;
-      float zPos = j * hexVerticalSpacing;
+      float zPos = i * hexVerticalSpacing;
 
 
-      if (i % 2 == 0) 
+      if (j % 2 == 0) 
       {
           zPos += hexVerticalSpacing/2;
       }
