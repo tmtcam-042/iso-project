@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-  public int q {get; set;}
-  public int r {get; set;}
+  public int q { get; set; }
+  public int r { get; set; }
 
   private Renderer renderer;
 

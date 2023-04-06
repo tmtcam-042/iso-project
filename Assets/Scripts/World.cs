@@ -18,7 +18,7 @@ public class World : MonoBehaviour
     private string hexTag = "HexTile";
 
     private Tile hoveredTile;
-    private List<Vector2Int> adjTiles;
+    private List<GameObject> adjTiles;
 
     public Color hoverColor = Color.red;
     public Color adjacentColor = Color.blue;
@@ -65,14 +65,12 @@ public class World : MonoBehaviour
 
             for (int r = minR; r < maxR; r++) // axial direction of hex
             {
-                Debug.Log("R: " + r + ", Q: " + q);
                 // Instantiate hexagonal prism tile and set its position
                 GameObject hexTile = Instantiate(hexagonalPrismTilePrefab, CalculateHexPosition(r, q), Quaternion.Euler(90, 30, 0));
                 hexTile.transform.SetParent(transform); // Set hexTile as child of WorldMap
                 hexTile.name = "Tile_" + r + "_" + q; // Set name of hexTile
                 hexTile.tag = hexTag;
-                hexTiles[q, r] = hexTile; // Store hexTile in hexTiles array
-
+                hexTiles[r, q] = hexTile; // Store hexTile in hexTiles array
 
                 // Attach Tile script to hexTile
                 Tile tileScript = hexTile.AddComponent<Tile>();
@@ -94,15 +92,47 @@ public class World : MonoBehaviour
     public Vector3 CalculateHexPosition(int r, int q) {
 
       
-      float zPos = q * hexVerticalSpacing; // X axis
-      //float xPos = r * hexHorizontalSpacing; // Y axis
-      float originOffset = -(1 + size)*hexHorizontalSpacing;
-      float xPos = -((float)r + (float)q/2)*hexHorizontalSpacing - originOffset;
+      float zPos = q * hexVerticalSpacing; // Vertical Axis
+
+      float originOffset = -(1 + size)*hexHorizontalSpacing; // Pin beneath anchor sphere
+      float xPos = -((float)r + (float)q/2)*hexHorizontalSpacing - originOffset; // Radial Axis
 
       float yPos = 0.0f;
 
 
       return new Vector3(xPos, yPos, zPos);
+    }
+    
+    // Given a target tile and a range, returns all targets within that range
+    public List<GameObject> TilesInRange(Tile target, int range)
+    {
+      List<GameObject> tilesInRange = new List<GameObject>();
+      int Q = target.q + range;
+      int R = target.r + range;
+      for (int i = -Q; i <= Q; i++)
+      {
+        for (int j = Math.Max(-Q, -target.q-Q); j <= Math.Min(Q, -target.q+Q); j++)
+        {
+          if (TileAt(i, j))
+          {
+            tilesInRange.Add(TileAt(i, j));
+          }
+        }
+      }
+      return tilesInRange;
+    }
+
+    // Returns true if tile is at given co-ords, false otherwise
+    public GameObject TileAt(int r, int q)
+    {
+      try
+      {
+        return hexTiles[r, q];
+      }
+      catch (System.Exception)
+      {
+        return null;
+      }
     }
 
     // Function to destroy all children hex tiles when called
@@ -119,59 +149,67 @@ public class World : MonoBehaviour
         }
     }
 
-    // public void Update()
-    // {
-    //   // Check for mouse raycast hit
-    //   RaycastHit hit;
-    //   if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
-    //   {
-    //       // Check if hit object has Tile component
-    //       Tile hitTile = hit.collider.GetComponent<Tile>();
-    //       if (hitTile != null)
-    //       {
-    //           // Check if hovered tile has changed
-    //           if (hoveredTile != hitTile)
-    //           {
-    //               // Reset tile colors
-    //               foreach(GameObject tile in hexTiles)
-    //               {
-    //                 tile.GetComponent<Tile>().SetTileColor(normColor);
-    //               }
+    public void Update()
+    {
+      // Check for mouse raycast hit
+      RaycastHit hit;
+      if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+      {
+          // Check if hit object has Tile component
+          Tile hitTile = hit.collider.GetComponent<Tile>();
+          if (hitTile != null)
+          {
+              // Check if hovered tile has changed
+              if (hoveredTile != hitTile)
+              {
+                  // Reset tile colors
+                  foreach(var tile in hexTiles.here(x => x != null))
+                  {
+                    if (tile == null) { continue; }
+                    tile.GetComponent<Tile>().SetTileColor(normColor);
+                  }
 
-    //               // Update hovered tile
-    //               hoveredTile = hitTile;
-    //               hoveredTile.SetTileColor(hoverColor);
+                  // Update hovered tile
+                  hoveredTile = hitTile;
+                  hoveredTile.SetTileColor(hoverColor);
 
-    //               // Get adjacent tiles
-    //               adjTiles = Utils.HexAdjacency(hoveredTile.x, hoveredTile.y, x, y);
-    //               foreach (Vector2Int adjIndex in adjTiles)
-    //               {
-    //                   Tile adjacentTile = hexTiles[adjIndex.x, adjIndex.y].GetComponent<Tile>();
-    //                   adjacentTile.SetTileColor(adjacentColor);
-    //               }
-    //           }
-    //       }
-    //   }
-    //   else
-    //   {
-    //       // Reset hovered tile color
-    //       if (hoveredTile != null)
-    //       {
-    //           hoveredTile.SetTileColor(normColor);
-    //           hoveredTile = null;
-    //       }
+                  // Get adjacent tiles
+                  adjTiles = TilesInRange(hoveredTile, 1);
+                  //adjTiles = Utils.HexAdjacency(hoveredTile.x, hoveredTile.y, x, y);
+                  foreach (GameObject adjacentTile in adjTiles)
+                  {
+                      adjacentTile.GetComponent<Tile>().SetTileColor(adjacentColor);
+                  }
+              }
+          }
+      }
+      else
+      {
+          // Reset hovered tile color
+          if (hoveredTile != null)
+          {
+              hoveredTile.SetTileColor(normColor);
+              hoveredTile = null;
+          }
 
-    //       // Reset adjacent tiles color
-    //       if (adjTiles != null)
-    //       {
-    //           foreach (Vector2Int adjIndex in adjTiles)
-    //           {
-    //               Tile adjacentTile = hexTiles[adjIndex.x, adjIndex.y].GetComponent<Tile>();
-    //               adjacentTile.SetTileColor(normColor);
-    //           }
-    //           adjTiles.Clear();
-    //       }
-    //   }
-    // }
+          // Reset adjacent tiles color
+          if (adjTiles != null)
+          {
+              foreach (var adjacentTile in adjTiles)
+              {
+                  if (adjacentTile == null) { continue; }
+                  adjacentTile.GetComponent<Tile>().SetTileColor(normColor);
+              }
+              adjTiles.Clear();
+          }
+      }
+    }
+
+    public void DebugHexMap() {
+      foreach(var item in hexTiles)
+      {
+        print(item);
+      }
+    }
 
 }
