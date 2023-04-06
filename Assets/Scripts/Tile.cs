@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-  public int x;
-  public int y;
+  public int q {get; set;}
+  public int r {get; set;}
 
   private Renderer renderer;
 
@@ -22,6 +22,6 @@ public class Tile : MonoBehaviour
 
 
   public override string ToString() {
-    return "Tile at (" + x + ", " + y + ") has positions (" + transform.position.x + ", " + transform.position.y + ").";
+    return "Tile at (" + q + ", " + r + ") has positions (" + transform.position.x + ", " + transform.position.y + ").";
   }
 }

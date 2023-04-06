@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,8 @@ public static class Utils
       {directions = EvenHexDirections;}
       else {directions = OddHexDirections;}
 
+      // Calculate list of direction
+
 
       for (int i = 0; i < directions.Length; i++) 
       {
@@ -28,6 +31,34 @@ public static class Utils
 
       return adjacentTiles;
     }
+
+    // public static List<Tile> TilesInRange(Vector2Int pos, int dist, World worldMap) {
+    //   List<Tile> tilesInRange = new List<Tile>();
+    //   Vector2Int[] tileVecs;
+
+    //   // Calculate list of tile directions for given range
+    //   // If row is even, Shift Right
+    //   // For a given distance, the resultant hexagon of found tiles
+    //   // will have rows equal to twice the distance + 1 (for the row of the tile at pos)
+    //   // hexRows is ALWAYS odd - handy
+    //   // so posRow is |dist-row|
+    //   int hexRows = dist * 2 + 1;
+    //   bool tileRosIsEven = pos.x % 2 == 0; // Is the tile @ pos on an even row
+    //   for (int row = 0; row < hexRows; i++) // for each row
+    //   {
+    //     for (int tile = 0; x`)
+    //     // If posRow is even, then first row looked at will get shifted,
+    //     // else second one will be. Alternates
+    //     Vector2Int direction; //(x, row-dist)
+    //     int offset = Math.Abs(dist - row);
+
+    //     // UP is negative. IE 0,0 is is top left corner. Directions in the 'up' direction have negative y
+
+
+    //   }
+
+    //   return tilesInRange;
+    // } 
 
 
     private static readonly Vector2Int[] EvenHexDirections = 
