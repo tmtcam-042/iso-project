@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 
 public class World : MonoBehaviour
@@ -14,7 +15,8 @@ public class World : MonoBehaviour
     public float hexHorizontalSpacing = 0.55f; // Horizontal spacing between hexes
     public float hexVerticalSpacing = 1.0f; // Vertical spacing between hexes
 
-    private GameObject[,] hexTiles; // Array to store hexagonal prism tiles
+    // Keys are strings of [r,q] for now. Might change later
+    private Dictionary<string, GameObject> hexTiles = new Dictionary<string, GameObject>(); // Dict for storing tiles
     private string hexTag = "HexTile";
 
     private Tile hoveredTile;
@@ -36,7 +38,7 @@ public class World : MonoBehaviour
 
         // Create new hexmap
         int arraySize = size * 2 + 1;
-        hexTiles = new GameObject[arraySize, arraySize]; // Null array
+        hexTiles = new Dictionary<string, GameObject>(); // Null hashtable
 
         // Loop through x and y to create hexagonal prism tiles
         for (int q = 0; q < arraySize ; q++) // 'row' of hex
@@ -70,12 +72,13 @@ public class World : MonoBehaviour
                 hexTile.transform.SetParent(transform); // Set hexTile as child of WorldMap
                 hexTile.name = "Tile_" + r + "_" + q; // Set name of hexTile
                 hexTile.tag = hexTag;
-                hexTiles[r, q] = hexTile; // Store hexTile in hexTiles array
+                hexTiles.Add(StringCoords(r,q), hexTile); // Store hexTile in hexTiles array
 
                 // Attach Tile script to hexTile
                 Tile tileScript = hexTile.AddComponent<Tile>();
-                tileScript.q = q; // Set x index of tile
                 tileScript.r = r; // Set y index of tile
+                tileScript.q = q; // Set x index of tile
+                
 
                 // Attach collider to hexTile
                 MeshCollider tileCollider = hexTile.AddComponent<MeshCollider>();
@@ -94,8 +97,8 @@ public class World : MonoBehaviour
       
       float zPos = q * hexVerticalSpacing; // Vertical Axis
 
-      float originOffset = -(1 + size)*hexHorizontalSpacing; // Pin beneath anchor sphere
-      float xPos = -((float)r + (float)q/2)*hexHorizontalSpacing - originOffset; // Radial Axis
+      float originOffset = -(1 + size) * hexHorizontalSpacing; // Pin beneath anchor sphere
+      float xPos = -((float)r + (float)q/2) * hexHorizontalSpacing - originOffset; // Radial Axis
 
       float yPos = 0.0f;
 
@@ -127,7 +130,7 @@ public class World : MonoBehaviour
     {
       try
       {
-        return hexTiles[r, q];
+        return hexTiles[StringCoords(r,q)];
       }
       catch (System.Exception)
       {
@@ -163,9 +166,9 @@ public class World : MonoBehaviour
               if (hoveredTile != hitTile)
               {
                   // Reset tile colors
-                  foreach(var tile in hexTiles.here(x => x != null))
+                  foreach(var tileEntry in hexTiles)
                   {
-                    if (tile == null) { continue; }
+                    GameObject tile = tileEntry.Value;
                     tile.GetComponent<Tile>().SetTileColor(normColor);
                   }
 
@@ -206,9 +209,9 @@ public class World : MonoBehaviour
     }
 
     public void DebugHexMap() {
-      foreach(var item in hexTiles)
+      foreach(var tile in hexTiles)
       {
-        print(item);
+        Debug.Log("Key: "+ tile.Key + ", Value: " + tile.Value);
       }
     }
 
