@@ -7,8 +7,6 @@ using static Utils;
 
 public class World : MonoBehaviour
 {
-    public int x; // Length of hexmap
-    public int y; // Width of hexmap
     public int size; // Radius of hexmap
     public GameObject hexagonalPrismTilePrefab;
 
@@ -76,8 +74,8 @@ public class World : MonoBehaviour
 
                 // Attach Tile script to hexTile
                 Tile tileScript = hexTile.AddComponent<Tile>();
-                tileScript.r = r; // Set y index of tile
-                tileScript.q = q; // Set x index of tile
+                tileScript.r = r; // Set x index of tile
+                tileScript.q = q; // Set y index of tile
                 
 
                 // Attach collider to hexTile
@@ -133,13 +131,13 @@ public class World : MonoBehaviour
         for (int j = Math.Max(-range, -i-range); j <= Math.Min(range, -i+range); j++)
         {
           Vector2Int result = AxialAdd(target, new Vector2Int(i, j));
-          if (TileAt(result.x, result.y))
+          GameObject foundTile = TileAt(result.x, result.y);
+          if (foundTile && foundTile.GetComponent<Tile>() != target)
           {
-            tilesInRange.Add(TileAt(result.x, result.y));
+            tilesInRange.Add(foundTile);
           }
         }
       }
-      Debug.Log(tilesInRange);
       return tilesInRange;
     }
 
@@ -188,7 +186,6 @@ public class World : MonoBehaviour
                   foreach(var tileEntry in hexTiles)
                   {
                     GameObject tile = tileEntry.Value;
-                    Debug.Log(tile);
                     tile.GetComponent<Tile>().SetTileColor(normColor);
                   }
 
