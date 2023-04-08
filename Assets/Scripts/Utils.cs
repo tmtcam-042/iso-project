@@ -11,4 +11,9 @@ public static class Utils
   {
     return $"[{r},{q}]";
   }
+
+  public static Vector2Int AxialAdd(Tile tile, Vector2Int vec)
+  {
+    return new Vector2Int(tile.r + vec.x, tile.q + vec.y);
+  }
 }

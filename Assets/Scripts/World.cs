@@ -107,7 +107,7 @@ public class World : MonoBehaviour
     }
     
     // Given a target tile and a range, returns all targets within that range
-    public List<GameObject> TilesInRange(Tile target, int range)
+    public List<GameObject> TilesInRange2(Tile target, int range)
     {
       List<GameObject> tilesInRange = new List<GameObject>();
       int Q = target.q + range;
@@ -116,12 +116,30 @@ public class World : MonoBehaviour
       {
         for (int j = Math.Max(-Q, -target.q-Q); j <= Math.Min(Q, -target.q+Q); j++)
         {
-          if (TileAt(i, j))
+          if (TileAt(j, i))
           {
-            tilesInRange.Add(TileAt(i, j));
+            tilesInRange.Add(TileAt(j, i));
           }
         }
       }
+      return tilesInRange;
+    }
+
+    public List<GameObject> TilesInRange(Tile target, int range)
+    {
+      List<GameObject> tilesInRange = new List<GameObject>();
+      for (int i = -range; i <= range; i++)
+      {
+        for (int j = Math.Max(-range, -i-range); j <= Math.Min(range, -i+range); j++)
+        {
+          Vector2Int result = AxialAdd(target, new Vector2Int(i, j));
+          if (TileAt(result.x, result.y))
+          {
+            tilesInRange.Add(TileAt(result.x, result.y));
+          }
+        }
+      }
+      Debug.Log(tilesInRange);
       return tilesInRange;
     }
 
@@ -165,10 +183,12 @@ public class World : MonoBehaviour
               // Check if hovered tile has changed
               if (hoveredTile != hitTile)
               {
+                //Debug.Log($"Hovered tile: {hoveredTile.r}, {hoveredTile.q}.");
                   // Reset tile colors
                   foreach(var tileEntry in hexTiles)
                   {
                     GameObject tile = tileEntry.Value;
+                    Debug.Log(tile);
                     tile.GetComponent<Tile>().SetTileColor(normColor);
                   }
 
