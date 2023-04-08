@@ -105,25 +105,8 @@ public class World : MonoBehaviour
     }
     
     // Given a target tile and a range, returns all targets within that range
-    public List<GameObject> TilesInRange2(Tile target, int range)
-    {
-      List<GameObject> tilesInRange = new List<GameObject>();
-      int Q = target.q + range;
-      int R = target.r + range;
-      for (int i = -Q; i <= Q; i++)
-      {
-        for (int j = Math.Max(-Q, -target.q-Q); j <= Math.Min(Q, -target.q+Q); j++)
-        {
-          if (TileAt(j, i))
-          {
-            tilesInRange.Add(TileAt(j, i));
-          }
-        }
-      }
-      return tilesInRange;
-    }
-
-    public List<GameObject> TilesInRange(Tile target, int range)
+    // includeSelf parameter indicates whether to include the targeted tile in the response
+    public List<GameObject> TilesInRange(Tile target, int range, bool includeSelf = false)
     {
       List<GameObject> tilesInRange = new List<GameObject>();
       for (int i = -range; i <= range; i++)
@@ -134,6 +117,10 @@ public class World : MonoBehaviour
           GameObject foundTile = TileAt(result.x, result.y);
           if (foundTile && foundTile.GetComponent<Tile>() != target)
           {
+            if (!includeSelf && foundTile.GetComponent<Tile>() == target)
+            {
+              continue; // Do not include self in the selection
+            }
             tilesInRange.Add(foundTile);
           }
         }
@@ -168,7 +155,12 @@ public class World : MonoBehaviour
         }
     }
 
-    public void Update()
+    public List<GameObject> AdjacentHexes(Tile target)
+    {
+      return TilesInRange(target, 1, false);
+    }
+
+    private void HighlightAdjacency()
     {
       // Check for mouse raycast hit
       RaycastHit hit;
@@ -194,7 +186,7 @@ public class World : MonoBehaviour
                   hoveredTile.SetTileColor(hoverColor);
 
                   // Get adjacent tiles
-                  adjTiles = TilesInRange(hoveredTile, 1);
+                  adjTiles = AdjacentHexes(hoveredTile);
                   //adjTiles = Utils.HexAdjacency(hoveredTile.x, hoveredTile.y, x, y);
                   foreach (GameObject adjacentTile in adjTiles)
                   {
@@ -223,6 +215,15 @@ public class World : MonoBehaviour
               adjTiles.Clear();
           }
       }
+    }
+
+    public void Update()
+    {
+      HighlightAdjacency();
+    }
+
+    private void Start() {
+      GenerateHexMap();
     }
 
     public void DebugHexMap() {
