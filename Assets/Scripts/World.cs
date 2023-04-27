@@ -76,6 +76,7 @@ public class World : MonoBehaviour
                 Tile tileScript = hexTile.AddComponent<Tile>();
                 tileScript.r = r; // Set x index of tile
                 tileScript.q = q; // Set y index of tile
+                tileScript.Type = TileTypes.Forest;
                 
 
                 // Attach collider to hexTile
@@ -177,8 +178,10 @@ public class World : MonoBehaviour
                   // Reset tile colors
                   foreach(var tileEntry in hexTiles)
                   {
-                    GameObject tile = tileEntry.Value;
-                    tile.GetComponent<Tile>().SetTileColor(normColor);
+                    GameObject hexTile = tileEntry.Value;
+                    Tile tile = hexTile.GetComponent<Tile>();
+                    Color baseColor = tile.Type.Color;
+                    tile.SetTileColor(baseColor);
                   }
 
                   // Update hovered tile
@@ -200,7 +203,9 @@ public class World : MonoBehaviour
           // Reset hovered tile color
           if (hoveredTile != null)
           {
-              hoveredTile.SetTileColor(normColor);
+              Tile tile = hoveredTile.GetComponent<Tile>();
+              Color baseColor = tile.Type.Color;
+              tile.SetTileColor(baseColor);
               hoveredTile = null;
           }
 
@@ -210,7 +215,9 @@ public class World : MonoBehaviour
               foreach (var adjacentTile in adjTiles)
               {
                   if (adjacentTile == null) { continue; }
-                  adjacentTile.GetComponent<Tile>().SetTileColor(normColor);
+                  Tile tile = adjacentTile.GetComponent<Tile>();
+                  Color baseColor = tile.Type.Color;
+                  tile.SetTileColor(baseColor);
               }
               adjTiles.Clear();
           }
