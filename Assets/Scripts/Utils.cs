@@ -17,4 +17,11 @@ public static class Utils
   {
     return new Vector2Int(tile.r + vec.x, tile.q + vec.y);
   }
+
+  public static void ResetTileColour(GameObject tileObject)
+  {
+    Tile tile = tileObject.GetComponent<Tile>();
+    Color baseColor = tile.Type.Color;
+    tile.SetTileColor(baseColor);
+  }
 }
