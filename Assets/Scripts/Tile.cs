@@ -26,6 +26,7 @@ public class TileRule
 public static class TileTypes {
   public static readonly TileType Neutral = new TileType("Neutral", Color.white, null);
   public static readonly TileType Forest = new TileType("Forest", Color.green, null);
+  public static readonly TileType River = new TileType("River", Color.blue, null);
   public static readonly TileType Beach = new TileType("Beach", new Color(1f, 0.92f, 0.78f), null);
   public static readonly TileType Path = new TileType("Path", Color.white, null);
   public static readonly TileType Monument = new TileType("Monument", Color.black, null);
