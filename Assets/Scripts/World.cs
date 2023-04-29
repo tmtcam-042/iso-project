@@ -76,7 +76,7 @@ public class World : MonoBehaviour
                 Tile tileScript = hexTile.AddComponent<Tile>();
                 tileScript.r = r; // Set x index of tile
                 tileScript.q = q; // Set y index of tile
-                tileScript.Type = TileTypes.Forest;
+                tileScript.Type = TileTypes.Neutral;
                 
 
                 // Attach collider to hexTile
