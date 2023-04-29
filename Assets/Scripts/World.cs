@@ -92,7 +92,7 @@ public class World : MonoBehaviour
         }
 
         // Pre-defined state options
-        TileAt(15, 16).GetComponent<Tile>().Type = TileTypes.Instance.Monument;
+        TileAt(15, 16).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
         TileAt(16, 16).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
         TileAt(17, 16).GetComponent<Tile>().Type = TileTypes.Instance.Beach;
         TileAt(18, 15).GetComponent<Tile>().Type = TileTypes.Instance.River;

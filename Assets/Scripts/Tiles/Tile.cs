@@ -52,15 +52,19 @@ public class Tile : MonoBehaviour
   // Calculates and updates the current tile's Shannon Entropy.
   public void CalculateShannonEntropy() 
   {
-    double sumWeight = 0f;
-    double logSumWeight = 0f;
-    foreach (TileType tile in tileSet)
-    {
-      sumWeight += tile.Weight;
-      logSumWeight += tile.Weight * Math.Log(tile.Weight);
-    }
+    // double sumWeight = 0f;
+    // double logSumWeight = 0f;
+    // foreach (TileType tile in tileSet)
+    // {
+    //   sumWeight += tile.Weight;
+    //   logSumWeight += tile.Weight * Math.Log(tile.Weight);
+    // }
     
-    shannonEntropy = Math.Log(sumWeight) - (logSumWeight / sumWeight);
+    // shannonEntropy = Math.Log(sumWeight) - (logSumWeight / sumWeight);
+    shannonEntropy = tileSet.Count;
+    // if (!resolved){
+    //   SetTileColor(new Color((float)shannonEntropy, (float)shannonEntropy, (float)shannonEntropy));
+    // }
   }
 
   public TileType PickRandomTypeFromTile()
