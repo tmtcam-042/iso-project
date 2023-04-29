@@ -14,7 +14,7 @@ public class World : MonoBehaviour
     public float hexVerticalSpacing = 1.0f; // Vertical spacing between hexes
 
     // Keys are strings of [r,q] for now. Might change later
-    private Dictionary<string, GameObject> hexTiles = new Dictionary<string, GameObject>(); // Dict for storing tiles
+    public Dictionary<string, GameObject> hexTiles = new Dictionary<string, GameObject>(); // Dict for storing tiles
     private string hexTag = "HexTile";
 
     private Tile hoveredTile;

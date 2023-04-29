@@ -24,7 +24,8 @@ public class Engine : MonoBehaviour
         // Loop over whole map - first pass
         foreach(var (pos, hexTile) in map.hexTiles)
         {
-          if (hexTile.resolved)
+          Tile tile = hexTile.GetComponent<Tile>();
+          if (tile.resolved)
           {
             /*
             * Evaluate defined tile.
@@ -34,7 +35,8 @@ public class Engine : MonoBehaviour
 
         foreach(var (pos, hexTile) in map.hexTiles)
         {
-          hexTile.CalculateShannonEntropy();
+          Tile tile = hexTile.GetComponent<Tile>();
+          tile.CalculateShannonEntropy();
         }
 
         // Done!
