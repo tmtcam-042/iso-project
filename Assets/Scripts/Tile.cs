@@ -80,6 +80,7 @@ public class TileTypes {
   public TileType River;
   public TileType Beach;
   public TileType Path;
+  public TileType DeepRiver;
   //public TileType Monument;
 
   public TileType Error;
@@ -88,15 +89,16 @@ public class TileTypes {
 
   private TileTypes() // Initialise all TileTypes rules etc in here
   { 
-    Forest = new TileType("Forest", 1f, Color.green, null);
-    River = new TileType("River", 1f, Color.blue, null);
+    Forest = new TileType("Forest", 1f, new Color(0.137f, 0.545f, 0.137f), null);
+    River = new TileType("River", 1f, new Color(0.678f, 0.847f, 0.902f), null);
     Beach = new TileType("Beach", 1f, new Color(1f, 0.92f, 0.78f), null);
     Path = new TileType("Path", 1f, Color.grey, null);
+    DeepRiver = new TileType("DeepRiver", 1f, new Color(0f, 0, 0.545f), null);
     Neutral = new TileType("Neutral", 1f, Color.white, null);
 
     Error = new TileType("Error", 1f, Color.red, null);
 
-    TileSet = new List<TileType>() { Forest, River, Beach, Path };
+    TileSet = new List<TileType>() { Forest, River, DeepRiver, Beach, Path };
 
     DefineAdjacencyRules();
   }
@@ -105,8 +107,9 @@ public class TileTypes {
   {
     Forest.Rules = new TileRule[] { new Adjacency(new List<TileType> { Beach, Forest, Path }) };
     River.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Beach }) };
-    Beach.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Forest }) };
+    Beach.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Forest, Beach }) };
     Path.Rules = new TileRule[] { new Adjacency(new List<TileType> { Forest, Path }) };
+    DeepRiver.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, DeepRiver }) };
   }
 }
 
@@ -169,10 +172,6 @@ public class Tile : MonoBehaviour
     }
     
     shannonEntropy = Math.Log(sumWeight) - (logSumWeight / sumWeight);
-    if (!resolved)
-    {
-    SetTileColor(new Color((float)shannonEntropy, (float)shannonEntropy, (float)shannonEntropy));
-    }
   }
 
   public TileType PickRandomTypeFromTile()

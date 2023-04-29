@@ -90,7 +90,12 @@ public class World : MonoBehaviour
         }
 
         // Pre-defined state options
-        TileAt(4, 0).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
+        TileAt(15, 16).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
+        TileAt(16, 16).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
+        TileAt(17, 16).GetComponent<Tile>().Type = TileTypes.Instance.Beach;
+        TileAt(18, 15).GetComponent<Tile>().Type = TileTypes.Instance.River;
+        TileAt(18, 16).GetComponent<Tile>().Type = TileTypes.Instance.River;
+        TileAt(19, 15).GetComponent<Tile>().Type = TileTypes.Instance.DeepRiver;
     }
 
     // Function to correctly tile all hexes in world view.
@@ -179,7 +184,6 @@ public class World : MonoBehaviour
               // Check if hovered tile has changed
               if (hoveredTile != hitTile)
               {
-                //Debug.Log($"Hovered tile: {hoveredTile.r}, {hoveredTile.q}.");
                   // Reset tile colors
                   foreach(var tileEntry in hexTiles)
                   {
@@ -227,7 +231,7 @@ public class World : MonoBehaviour
     public Tile FindRandomTileWithLowestEntropy()
     {
       double lowestEntropy = double.MaxValue;
-      List<Tile> lowestEntropyTiles = new List<Tile>();
+      Tile lowestEntropyTile = null;
 
       foreach(KeyValuePair<string, GameObject> entry in hexTiles)
       {
@@ -236,23 +240,19 @@ public class World : MonoBehaviour
         if (tile.resolved) { continue; }
 
         // Check if the tile's shannon entropy is lower than the current lowest
-        if (tile.shannonEntropy < lowestEntropy)
+        // And that it is non-zero
+        if (tile.shannonEntropy > 0 && tile.shannonEntropy < lowestEntropy)
         {
           lowestEntropy = tile.shannonEntropy;
-          lowestEntropyTiles.Clear();
-          lowestEntropyTiles.Add(tile);
+          lowestEntropyTile = tile;
         }
-        else if (tile.shannonEntropy == lowestEntropy)
+        // If there is no non-zero minimum, but the current tile has zero, keep track as fallback
+        else if (lowestEntropyTile == null && tile.shannonEntropy == 0)
         {
-          lowestEntropyTiles.Add(tile);
+          lowestEntropyTile = tile;
         }
-      }
-
-      // Choose a random tile from the list of lowest entropy tiles
-      Tile randomTile = lowestEntropyTiles[UnityEngine.Random.Range(0, lowestEntropyTiles.Count)];
-      Debug.Log("Picked " + randomTile + " with shannon entropy of " + randomTile.shannonEntropy);
-
-      return randomTile;
+      }            
+      return lowestEntropyTile;
     }
 
     public void Update()
@@ -262,13 +262,6 @@ public class World : MonoBehaviour
 
     private void Start() {
       GenerateHexMap();
-    }
-
-    public void DebugHexMap() {
-      foreach(var tile in hexTiles)
-      {
-        Debug.Log("Key: "+ tile.Key + ", Value: " + tile.Value);
-      }
     }
 
 }

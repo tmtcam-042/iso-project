@@ -46,6 +46,5 @@ public class Engine : MonoBehaviour
         Tile target = map.FindRandomTileWithLowestEntropy();
         TileType selectedType = target.PickRandomTypeFromTile();
         target.Type = selectedType;
-        Debug.Log(target + " was given type " + selectedType);
     }
 }

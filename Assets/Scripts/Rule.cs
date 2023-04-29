@@ -27,12 +27,10 @@ public class Adjacency : TileRule
       List<TileType> tileTypesToRemove = new List<TileType>();
       foreach(TileType tileType in adjTile.tileSet)
       {
-        //Debug.Log("Adjudicating if tile type " + tileType + " is permitted for " + adjTile);
         // If the tile type is not on the permitted list of adjacent tiles, remove it
         if(!permittedTiles.Contains(tileType))
         {
           tileTypesToRemove.Add(tileType);
-          //Debug.Log(name + " rule evaluated, " + tileType + " removed from " + adjTile);
         }
       }
 
