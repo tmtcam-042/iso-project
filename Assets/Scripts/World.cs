@@ -17,6 +17,8 @@ public class World : MonoBehaviour
     public Dictionary<string, GameObject> hexTiles = new Dictionary<string, GameObject>(); // Dict for storing tiles
     private string hexTag = "HexTile";
 
+    public bool finished = false;
+
     private Tile hoveredTile;
     private List<GameObject> adjTiles;
 
@@ -90,7 +92,7 @@ public class World : MonoBehaviour
         }
 
         // Pre-defined state options
-        TileAt(15, 16).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
+        TileAt(15, 16).GetComponent<Tile>().Type = TileTypes.Instance.Monument;
         TileAt(16, 16).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
         TileAt(17, 16).GetComponent<Tile>().Type = TileTypes.Instance.Beach;
         TileAt(18, 15).GetComponent<Tile>().Type = TileTypes.Instance.River;
@@ -171,63 +173,6 @@ public class World : MonoBehaviour
       return TilesInRange(target, 1, false);
     }
 
-    private void HighlightAdjacency()
-    {
-      // Check for mouse raycast hit
-      RaycastHit hit;
-      if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
-      {
-          // Check if hit object has Tile component
-          Tile hitTile = hit.collider.GetComponent<Tile>();
-          if (hitTile != null)
-          {
-              // Check if hovered tile has changed
-              if (hoveredTile != hitTile)
-              {
-                  // Reset tile colors
-                  foreach(var tileEntry in hexTiles)
-                  {
-                    GameObject hexTile = tileEntry.Value;
-                    ResetTileColour(hexTile);
-                  }
-
-                  // Update hovered tile
-                  hoveredTile = hitTile;
-                  hoveredTile.SetTileColor(hoverColor);
-
-                  // Get adjacent tiles
-                  adjTiles = AdjacentHexes(hoveredTile);
-                  //adjTiles = Utils.HexAdjacency(hoveredTile.x, hoveredTile.y, x, y);
-                  foreach (GameObject adjacentTile in adjTiles)
-                  {
-                      adjacentTile.GetComponent<Tile>().SetTileColor(adjacentColor);
-                  }
-              }
-          }
-      }
-      else
-      {
-          // Reset hovered tile color
-          if (hoveredTile != null)
-          {
-              Color baseColor = hoveredTile.Type.Color;
-              hoveredTile.SetTileColor(baseColor);
-              hoveredTile = null;
-          }
-
-          // Reset adjacent tiles color
-          if (adjTiles != null)
-          {
-              foreach (var adjacentTile in adjTiles)
-              {
-                  if (adjacentTile == null) { continue; }
-                    ResetTileColour(adjacentTile);
-              }
-              adjTiles.Clear();
-          }
-      }
-    }
-
     public Tile FindRandomTileWithLowestEntropy()
     {
       double lowestEntropy = double.MaxValue;
@@ -251,13 +196,10 @@ public class World : MonoBehaviour
         {
           lowestEntropyTile = tile;
         }
-      }            
-      return lowestEntropyTile;
-    }
+      }
 
-    public void Update()
-    {
-      HighlightAdjacency();
+      if (lowestEntropyTile == null){ finished = true; }            
+      return lowestEntropyTile;
     }
 
     private void Start() {

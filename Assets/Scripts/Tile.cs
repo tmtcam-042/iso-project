@@ -12,12 +12,11 @@ public class TileType
   public Color Color { get; set; }
   public TileRule[] Rules { get; set; }
 
-  public TileType(string name, float weight, Color color, TileRule[] rules)
+  public TileType(string name, float weight, Color color)
   {
     Name = name;
     Weight = weight;
     Color = color;
-    Rules = rules;
   }
 
   public void EvaluateRules(Tile target, World world)
@@ -81,7 +80,7 @@ public class TileTypes {
   public TileType Beach;
   public TileType Path;
   public TileType DeepRiver;
-  //public TileType Monument;
+  public TileType Monument;
 
   public TileType Error;
 
@@ -89,24 +88,26 @@ public class TileTypes {
 
   private TileTypes() // Initialise all TileTypes rules etc in here
   { 
-    Forest = new TileType("Forest", 1f, new Color(0.137f, 0.545f, 0.137f), null);
-    River = new TileType("River", 1f, new Color(0.678f, 0.847f, 0.902f), null);
-    Beach = new TileType("Beach", 1f, new Color(1f, 0.92f, 0.78f), null);
-    Path = new TileType("Path", 1f, Color.grey, null);
-    DeepRiver = new TileType("DeepRiver", 1f, new Color(0f, 0, 0.545f), null);
-    Neutral = new TileType("Neutral", 1f, Color.white, null);
+    Forest = new TileType("Forest", 0.6f, new Color(0.137f, 0.545f, 0.137f));
+    River = new TileType("River", 0.1f, new Color(0.678f, 0.847f, 0.902f));
+    Beach = new TileType("Beach", 0.5f, new Color(1f, 0.92f, 0.78f));
+    Path = new TileType("Path", 0.1f, Color.grey);
+    DeepRiver = new TileType("DeepRiver", 0.1f, new Color(0f, 0, 0.545f));
+    Monument = new TileType("Monument", 10f, Color.black);
+    Neutral = new TileType("Neutral", 1f, Color.white);
 
-    Error = new TileType("Error", 1f, Color.red, null);
+    Error = new TileType("Error", 1f, Color.red);
 
-    TileSet = new List<TileType>() { Forest, River, DeepRiver, Beach, Path };
+    TileSet = new List<TileType>() { Forest, River, DeepRiver, Beach, Path, Monument };
 
     DefineAdjacencyRules();
   }
 
   private void DefineAdjacencyRules()
   {
-    Forest.Rules = new TileRule[] { new Adjacency(new List<TileType> { Beach, Forest, Path }) };
-    River.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Beach }) };
+    Forest.Rules = new TileRule[] { new Adjacency(new List<TileType> { Beach, Forest, Path, Monument }) };
+    Monument.Rules = new TileRule[] { new Adjacency(new List<TileType> { Forest }), new LocalQuantity(Monument, 10, 1)};
+    River.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Beach, Forest }) };
     Beach.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Forest, Beach }) };
     Path.Rules = new TileRule[] { new Adjacency(new List<TileType> { Forest, Path }) };
     DeepRiver.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, DeepRiver }) };
@@ -182,10 +183,29 @@ public class Tile : MonoBehaviour
       return TileTypes.Instance.Error;
     }
 
-    // Select a random type from the tile's set
-    TileType randomType = tileSet[UnityEngine.Random.Range(0, tileSet.Count)];
+    // Calculate the sum of all weights
+    float totalWeight = 0f;
+    foreach(TileType tileType in tileSet)
+    {
+      totalWeight += tileType.Weight;
+    }
 
-    return randomType;
+    // Generate a random number between 0 and the sum of weights
+    float randomNumber = UnityEngine.Random.Range(0f, totalWeight);
+
+    // Select the tile corresponding to the random number generated
+    float weightSum = 0f;
+    foreach (TileType tileType in tileSet)
+    {
+      weightSum += tileType.Weight;
+      if (randomNumber <= weightSum)
+      {
+        return tileType;
+      }
+    }
+
+    // Error catching
+    return TileTypes.Instance.Error;
   }
 
   public override string ToString() {

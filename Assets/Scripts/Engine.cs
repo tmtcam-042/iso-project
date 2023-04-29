@@ -43,8 +43,10 @@ public class Engine : MonoBehaviour
         * Step 3 - Pick an option
         * Step 4 - 
         */
-        Tile target = map.FindRandomTileWithLowestEntropy();
-        TileType selectedType = target.PickRandomTypeFromTile();
-        target.Type = selectedType;
+        if (!map.finished){
+          Tile target = map.FindRandomTileWithLowestEntropy();
+          TileType selectedType = target.PickRandomTypeFromTile();
+          target.Type = selectedType;
+        }
     }
 }
