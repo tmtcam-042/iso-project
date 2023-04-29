@@ -19,28 +19,97 @@ public class TileType
     Color = color;
     Rules = rules;
   }
-}
 
-public abstract class TileRule
-{
-    public abstract string name { get; set; }
-    public abstract void Evaluate();
-    public override string ToString()
+  public void EvaluateRules(Tile target, World world)
+  {
+    // Skip if no rules
+    if (Rules == null)
     {
-      return "RULE - " + name;
+      return;
     }
+
+    foreach(TileRule rule in Rules)
+    {
+      rule.Evaluate(target, world);
+    }
+
+    target.CalculateShannonEntropy();
+  }
+  
+  public override bool Equals(object obj)
+  {
+    if (obj == null || GetType() != obj.GetType())
+    {
+      return false;
+    }
+
+    TileType other = (TileType)obj;
+    return this.Name == other.Name; // Assuming 'name' is unique for each TileType
+  }
+
+  public override int GetHashCode()
+  {
+    return this.Name.GetHashCode();
+  }
+
+  public override string ToString()
+  {
+    return Name;
+  }
+
 }
 
-public static class TileTypes {
-  public static readonly TileType Neutral = new TileType("Neutral", 1f, Color.white, null);
-  public static readonly TileType Forest = new TileType("Forest", 1f, Color.green, null);
-  public static readonly TileType River = new TileType("River", 1f, Color.blue, null);
-  public static readonly TileType Beach = new TileType("Beach", 1f, new Color(1f, 0.92f, 0.78f), null);
-  public static readonly TileType Path = new TileType("Path", 1f, Color.grey, null);
-  public static readonly TileType Monument = new TileType("Monument", 1f, Color.black, null);
+public class TileTypes {
 
-  public static readonly List<TileType> TileSet = new List<TileType>(){Forest, River, Beach, Path, Monument};
+  // Singleton instance
+  private static TileTypes _instance;
+  public static TileTypes Instance
+  {
+    get
+    {
+      if (_instance == null)
+      {
+        _instance = new TileTypes();
+      }
+      return _instance;
+    }
+  }
+
+  public TileType Neutral;
+  public TileType Forest;
+  public TileType River;
+  public TileType Beach;
+  public TileType Path;
+  //public TileType Monument;
+
+  public TileType Error;
+
+  public List<TileType> TileSet;
+
+  private TileTypes() // Initialise all TileTypes rules etc in here
+  { 
+    Forest = new TileType("Forest", 1f, Color.green, null);
+    River = new TileType("River", 1f, Color.blue, null);
+    Beach = new TileType("Beach", 1f, new Color(1f, 0.92f, 0.78f), null);
+    Path = new TileType("Path", 1f, Color.grey, null);
+    Neutral = new TileType("Neutral", 1f, Color.white, null);
+
+    Error = new TileType("Error", 1f, Color.red, null);
+
+    TileSet = new List<TileType>() { Forest, River, Beach, Path };
+
+    DefineAdjacencyRules();
+  }
+
+  private void DefineAdjacencyRules()
+  {
+    Forest.Rules = new TileRule[] { new Adjacency(new List<TileType> { Beach, Forest, Path }) };
+    River.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Beach }) };
+    Beach.Rules = new TileRule[] { new Adjacency(new List<TileType> { River, Forest }) };
+    Path.Rules = new TileRule[] { new Adjacency(new List<TileType> { Forest, Path }) };
+  }
 }
+
 
 public class Tile : MonoBehaviour
 {
@@ -48,7 +117,10 @@ public class Tile : MonoBehaviour
   public bool resolved = false;
   public int q { get; set; }
   public int r { get; set; }
+
   public double shannonEntropy;
+  public World world;
+
   public TileType Type { 
     get
     {
@@ -57,11 +129,17 @@ public class Tile : MonoBehaviour
     set
     {
       _type = value;
-      name = Type.Name;
-      SetTileColor(Type.Color);
+      name = value.Name;
+      SetTileColor(value.Color);
+      value.EvaluateRules(this, world);
+      if (value.Name != "Neutral")
+      {
+        resolved = true;
+      }
     } 
   }
-  public List<TileType> tileSet = TileTypes.TileSet;
+  public List<TileType> tileSet;
+  public int count;
 
   // Private backing field to prevent stack overflow
   private TileType _type;
@@ -71,6 +149,7 @@ public class Tile : MonoBehaviour
   public void Awake()
   {
     renderer = GetComponentInChildren<Renderer>();
+    tileSet = new List<TileType>(TileTypes.Instance.TileSet); // Create a copy rather than a reference
   }
 
   public void SetTileColor(Color setColor) 
@@ -90,9 +169,27 @@ public class Tile : MonoBehaviour
     }
     
     shannonEntropy = Math.Log(sumWeight) - (logSumWeight / sumWeight);
+    if (!resolved)
+    {
+    SetTileColor(new Color((float)shannonEntropy, (float)shannonEntropy, (float)shannonEntropy));
+    }
+  }
+
+  public TileType PickRandomTypeFromTile()
+  {
+    if (tileSet.Count == 0)
+    {
+      Debug.LogWarning(ToString() + " does not contain any TileType in the given tileSet");
+      return TileTypes.Instance.Error;
+    }
+
+    // Select a random type from the tile's set
+    TileType randomType = tileSet[UnityEngine.Random.Range(0, tileSet.Count)];
+
+    return randomType;
   }
 
   public override string ToString() {
-    return name + " at (" + q + ", " + r + ") has positions (" + transform.position.x + ", " + transform.position.y + ").";
+    return name + " at (" + r + ", " + q + ")";
   }
 }

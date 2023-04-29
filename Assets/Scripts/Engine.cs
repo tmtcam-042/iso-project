@@ -22,16 +22,8 @@ public class Engine : MonoBehaviour
         */
 
         // Loop over whole map - first pass
-        foreach(var (pos, hexTile) in map.hexTiles)
-        {
-          Tile tile = hexTile.GetComponent<Tile>();
-          if (tile.resolved)
-          {
-            /*
-            * Evaluate defined tile.
-            */
-          }
-        }
+        // NOTE - on world initialisation, all tiles that are pre-defined are
+        // 'set', which Evaluates them automatically.
 
         foreach(var (pos, hexTile) in map.hexTiles)
         {
@@ -51,5 +43,9 @@ public class Engine : MonoBehaviour
         * Step 3 - Pick an option
         * Step 4 - 
         */
+        Tile target = map.FindRandomTileWithLowestEntropy();
+        TileType selectedType = target.PickRandomTypeFromTile();
+        target.Type = selectedType;
+        Debug.Log(target + " was given type " + selectedType);
     }
 }

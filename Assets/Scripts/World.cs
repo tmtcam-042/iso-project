@@ -72,11 +72,13 @@ public class World : MonoBehaviour
                 hexTile.tag = hexTag;
                 hexTiles.Add(StringCoords(r,q), hexTile); // Store hexTile in hexTiles array
 
+                // Generate new Tile
                 // Attach Tile script to hexTile
                 Tile tileScript = hexTile.AddComponent<Tile>();
                 tileScript.r = r; // Set x index of tile
                 tileScript.q = q; // Set y index of tile
-                tileScript.Type = TileTypes.Neutral;
+                tileScript.world = this;
+                tileScript.Type = TileTypes.Instance.Neutral;
                 
 
                 // Attach collider to hexTile
@@ -86,6 +88,9 @@ public class World : MonoBehaviour
                 tileCollider.sharedMesh = hexTile.GetComponent<Transform>().GetChild(0).GetComponent<MeshFilter>().sharedMesh;
             }
         }
+
+        // Pre-defined state options
+        TileAt(4, 0).GetComponent<Tile>().Type = TileTypes.Instance.Forest;
     }
 
     // Function to correctly tile all hexes in world view.
@@ -217,6 +222,37 @@ public class World : MonoBehaviour
               adjTiles.Clear();
           }
       }
+    }
+
+    public Tile FindRandomTileWithLowestEntropy()
+    {
+      double lowestEntropy = double.MaxValue;
+      List<Tile> lowestEntropyTiles = new List<Tile>();
+
+      foreach(KeyValuePair<string, GameObject> entry in hexTiles)
+      {
+        // Get the tile component of the GameObject value
+        Tile tile = entry.Value.GetComponent<Tile>();
+        if (tile.resolved) { continue; }
+
+        // Check if the tile's shannon entropy is lower than the current lowest
+        if (tile.shannonEntropy < lowestEntropy)
+        {
+          lowestEntropy = tile.shannonEntropy;
+          lowestEntropyTiles.Clear();
+          lowestEntropyTiles.Add(tile);
+        }
+        else if (tile.shannonEntropy == lowestEntropy)
+        {
+          lowestEntropyTiles.Add(tile);
+        }
+      }
+
+      // Choose a random tile from the list of lowest entropy tiles
+      Tile randomTile = lowestEntropyTiles[UnityEngine.Random.Range(0, lowestEntropyTiles.Count)];
+      Debug.Log("Picked " + randomTile + " with shannon entropy of " + randomTile.shannonEntropy);
+
+      return randomTile;
     }
 
     public void Update()
